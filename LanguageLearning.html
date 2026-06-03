@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>🌍 LinguaLeap — Language Learning App</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0a0510;--surface:#100a1a;--card:#16102a;--border:#221840;--primary:#A855F7;--secondary:#F472B6;--success:#34D399;--warn:#FBBF24;--danger:#EF4444;--text:#f0e8ff;--muted:#6654a0}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 700px 500px at 30% 30%,rgba(168,85,247,.07),transparent),radial-gradient(ellipse 500px 400px at 75% 65%,rgba(244,114,182,.05),transparent);pointer-events:none}
+
+/* HEADER */
+header{position:sticky;top:0;z-index:200;background:rgba(16,10,26,.92);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);padding:1rem 1.5rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem}
+.logo{display:flex;align-items:center;gap:.7rem}
+.logo-icon{width:36px;height:36px;background:linear-gradient(135deg,var(--primary),var(--secondary));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem}
+.logo-name{font-size:1.2rem;font-weight:900;background:linear-gradient(135deg,var(--primary),var(--secondary));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.xp-chip{background:linear-gradient(135deg,var(--warn),#F97316);color:#0a0510;padding:.38rem .9rem;border-radius:50px;font-size:.8rem;font-weight:800;display:flex;align-items:center;gap:.3rem}
+
+/* NAV */
+nav{background:var(--surface);border-bottom:1px solid var(--border);display:flex;gap:.2rem;overflow-x:auto;padding:.5rem 1rem;scrollbar-width:none}
+nav::-webkit-scrollbar{display:none}
+.nb{background:none;border:none;color:var(--muted);padding:.55rem 1rem;border-radius:9px;cursor:pointer;font-family:'Inter',sans-serif;font-size:.82rem;font-weight:500;white-space:nowrap;transition:all .2s}
+.nb.on,.nb:hover{background:var(--card);color:var(--text)}
+.nb.on{color:var(--primary)}
+
+/* PAGES */
+.pg{display:none;max-width:1080px;margin:0 auto;padding:1.5rem;position:relative;z-index:1}.pg.on{display:block}
+
+/* CARD */
+.card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:1.4rem}
+.card-title{font-size:.75rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:1rem}
+
+/* GRID */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:1.1rem}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}
+.g4{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem}
+@media(max-width:640px){.g2,.g3{grid-template-columns:1fr}}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:.4rem;padding:.6rem 1.2rem;border-radius:10px;border:none;cursor:pointer;font-family:'Inter',sans-serif;font-size:.85rem;font-weight:600;transition:all .2s}
+.btn-p{background:var(--primary);color:#fff}.btn-p:hover{background:#9333ea;transform:translateY(-1px)}
+.btn-s{background:var(--secondary);color:#fff}.btn-s:hover{opacity:.85}
+.btn-o{background:transparent;border:1px solid var(--border);color:var(--muted)}.btn-o:hover{border-color:var(--primary);color:var(--primary)}
+.btn-g{background:var(--success);color:#0a0510;font-weight:700}.btn-g:hover{background:#2ec98d}
+.btn-d{background:var(--danger);color:#fff}.btn-d:hover{background:#dc2626}
+.btn-sm{padding:.4rem .85rem;font-size:.78rem;border-radius:8px}
+.btn-full{width:100%;justify-content:center}
+
+/* LANGUAGE CARDS */
+.lang-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1rem}
+.lang-card{background:var(--card);border:2px solid var(--border);border-radius:18px;padding:1.5rem;cursor:pointer;transition:all .25s;text-align:center}
+.lang-card:hover,.lang-card.sel{border-color:var(--primary);transform:translateY(-3px);box-shadow:0 12px 30px rgba(168,85,247,.15)}
+.lang-flag{font-size:2.5rem;margin-bottom:.5rem}
+.lang-name{font-size:1.05rem;font-weight:700;margin-bottom:.2rem}
+.lang-count{font-size:.78rem;color:var(--muted)}
+.lang-progress{margin-top:.75rem;height:5px;background:var(--surface);border-radius:3px;overflow:hidden}
+.lang-progress-fill{height:100%;background:linear-gradient(90deg,var(--primary),var(--secondary));border-radius:3px;transition:width .5s}
+
+/* WORD CARD */
+.word-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1rem 1.2rem;display:flex;align-items:center;justify-content:space-between;gap:.75rem;transition:all .2s}
+.word-card:hover{border-color:var(--primary)}
+.wc-en{font-weight:600;font-size:.95rem}
+.wc-tr{color:var(--primary);font-weight:700;font-size.95rem}
+.wc-pron{font-size:.75rem;color:var(--muted)}
+.wc-cat{display:inline-block;background:rgba(168,85,247,.12);color:var(--primary);padding:.18rem .55rem;border-radius:6px;font-size:.7rem;font-weight:600}
+.wc-mastered{background:rgba(52,211,153,.1);color:var(--success);padding:.18rem .55rem;border-radius:6px;font-size:.7rem;font-weight:700}
+
+/* FLASHCARD */
+.fc-wrap{display:flex;flex-direction:column;align-items:center;padding:2rem 1rem;min-height:60vh}
+.fc{width:100%;max-width:500px;height:280px;perspective:1200px;cursor:pointer;margin:1rem 0}
+.fc-inner{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform .55s cubic-bezier(.4,0,.2,1)}
+.fc.flip .fc-inner{transform:rotateY(180deg)}
+.fc-face{position:absolute;inset:0;border-radius:22px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem;backface-visibility:hidden;text-align:center}
+.fc-front{background:var(--card);border:1px solid var(--border)}
+.fc-back{background:linear-gradient(135deg,rgba(168,85,247,.12),rgba(244,114,182,.08));border:1px solid var(--primary);transform:rotateY(180deg)}
+.fc-lbl{font-size:.7rem;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:.75rem}
+.fc-word{font-size:1.8rem;font-weight:800;margin-bottom:.4rem}
+.fc-pron{font-size:.85rem;color:var(--primary);margin-bottom:.3rem}
+.fc-ex{font-size:.82rem;color:var(--muted);line-height:1.5;margin-top:.5rem}
+
+/* QUIZ */
+.quiz-wrap{max-width:580px;margin:0 auto;padding:1.5rem 0}
+.q-prog{height:6px;background:var(--surface);border-radius:3px;overflow:hidden;margin-bottom:1rem}
+.q-prog-fill{height:100%;background:linear-gradient(90deg,var(--primary),var(--secondary));border-radius:3px;transition:width .4s}
+.q-counter{display:flex;justify-content:space-between;font-size:.8rem;color:var(--muted);margin-bottom:1.2rem}
+.q-question{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:2rem;text-align:center;margin-bottom:1.2rem}
+.q-q-label{font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom.5rem}
+.q-q-text{font-size:1.5rem;font-weight:800;margin:.5rem 0}
+.q-cat-badge{display:inline-block;background:rgba(168,85,247,.12);color:var(--primary);padding:.2rem .65rem;border-radius:6px;font-size:.72rem;font-weight:600}
+.options-grid{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:1rem}
+.opt-btn{background:var(--card);border:2px solid var(--border);color:var(--text);padding:1rem;border-radius:14px;cursor:pointer;font-family:'Inter',sans-serif;font-size:.9rem;font-weight:600;transition:all .2s;text-align:center}
+.opt-btn:hover:not(:disabled){border-color:var(--primary);background:rgba(168,85,247,.08)}
+.opt-btn.correct{border-color:var(--success);background:rgba(52,211,153,.12);color:var(--success)}
+.opt-btn.wrong{border-color:var(--danger);background:rgba(239,68,68,.1);color:var(--danger)}
+.opt-btn:disabled{cursor:default}
+.q-result-msg{text-align:center;padding:.75rem;border-radius:12px;font-weight:600;font-size:.9rem;margin-bottom:.75rem;display:none}
+.q-result-msg.show-ok{display:block;background:rgba(52,211,153,.1);color:var(--success)}
+.q-result-msg.show-bad{display:block;background:rgba(239,68,68,.08);color:var(--danger)}
+
+/* RESULT */
+.result-wrap{text-align:center;max-width:480px;margin:0 auto;padding:2rem 1rem}
+.score-ring{width:140px;height:140px;margin:0 auto 1.5rem;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;border:10px solid var(--border)}
+.score-pct{font-size:2.2rem;font-weight:900}
+.score-lbl{font-size:.7rem;color:var(--muted)}
+
+/* PROGRESS PAGE */
+.prog-stat{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1.2rem;text-align:center}
+.ps-num{font-size:2rem;font-weight:900;background:linear-gradient(135deg,var(--primary),var(--secondary));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.ps-lbl{font-size:.75rem;color:var(--muted);margin-top:.2rem}
+.xp-bar{height:12px;background:var(--surface);border-radius:6px;overflow:hidden;margin:.5rem 0}
+.xp-fill{height:100%;background:linear-gradient(90deg,var(--warn),#F97316);border-radius:6px;transition:width .6s}
+.achievement{display:flex;align-items:center;gap.75rem;padding:.75rem;background:var(--surface);border-radius:12px;border:1px solid var(--border);margin-bottom:.5rem;gap:.75rem}
+.ach-icon{font-size:1.4rem}
+.ach-info h4{font-size:.85rem;font-weight:700}
+.ach-info p{font-size:.72rem;color:var(--muted)}
+
+/* TOAST */
+.toast{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--card);border:1px solid var(--border);border-left:4px solid var(--primary);padding:.8rem 1.2rem;border-radius:14px;font-size:.875rem;transform:translateX(200%);transition:transform .3s;z-index:9999;max-width:260px}
+.toast.show{transform:translateX(0)}
+.inp{background:var(--surface);border:1px solid var(--border);color:var(--text);padding:.65rem 1rem;border-radius:11px;font-family:'Inter',sans-serif;font-size:.9rem;outline:none;transition:border-color .2s;width:100%}
+.inp:focus{border-color:var(--primary)}
+select.inp{cursor:pointer}
+.empty{text-align:center;padding:3rem 1rem;color:var(--muted)}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo"><div class="logo-icon">🌍</div><div class="logo-name">LinguaLeap</div></div>
+  <div class="xp-chip" id="xpChip">⭐ 0 XP</div>
+</header>
+<nav>
+  <button class="nb on" onclick="goPage('home')">🌍 Languages</button>
+  <button class="nb" onclick="goPage('flashcards')">📚 Flashcards</button>
+  <button class="nb" onclick="goPage('quiz')">🧠 Quiz</button>
+  <button class="nb" onclick="goPage('vocab')">📖 Vocabulary</button>
+  <button class="nb" onclick="goPage('progress')">📊 Progress</button>
+</nav>
+
+<!-- LANGUAGES -->
+<div class="pg on" id="pg-home">
+  <div style="text-align:center;padding:2rem 1rem 1.5rem">
+    <h1 style="font-size:clamp(1.6rem,4vw,2.4rem);font-weight:900;background:linear-gradient(135deg,var(--primary),var(--secondary));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:.3rem">🌍 LinguaLeap</h1>
+    <p style="color:var(--muted);font-size:.95rem">Pick a language and start learning today</p>
+  </div>
+  <div class="lang-grid" id="langGrid"></div>
+  <div style="margin-top:2rem">
+    <div class="card-title">Your Stats</div>
+    <div class="g4" id="homeStats"></div>
+  </div>
+</div>
+
+<!-- FLASHCARDS -->
+<div class="pg" id="pg-flashcards">
+  <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.2rem;flex-wrap:wrap">
+    <h2 style="font-size:1.3rem;font-weight:800;flex:1">📚 Flashcards</h2>
+    <select class="inp" style="max-width:160px" id="fcLang" onchange="loadFC()"></select>
+    <select class="inp" style="max-width:140px" id="fcCat" onchange="loadFC()"></select>
+  </div>
+  <div class="fc-wrap" id="fcWrap">
+    <div class="g2" style="width:100%;max-width:500px;margin-bottom:1rem">
+      <div style="text-align:center"><div style="font-size:.75rem;color:var(--muted)">Card</div><div id="fcCounter" style="font-size:1.1rem;font-weight:700">1 / 1</div></div>
+      <div style="text-align:center"><div style="font-size:.75rem;color:var(--muted)">Mastered</div><div id="fcMastered" style="font-size:1.1rem;font-weight:700;color:var(--success)">0</div></div>
+    </div>
+    <div class="fc" id="fc" onclick="flipFC()">
+      <div class="fc-inner">
+        <div class="fc-face fc-front"><div class="fc-lbl">English</div><div class="fc-word" id="fcEn">—</div><div class="fc-ex" id="fcExEn" style="color:var(--muted)"></div><div style="font-size:.78rem;color:var(--muted);margin-top:.75rem">Click to flip ↓</div></div>
+        <div class="fc-face fc-back"><div class="fc-lbl" id="fcLangLbl">Translation</div><div class="fc-word" id="fcTr" style="color:var(--primary)">—</div><div class="fc-pron" id="fcPron"></div><div class="fc-ex" id="fcExTr"></div></div>
+      </div>
+    </div>
+    <div style="display:flex;gap:.75rem;flex-wrap:wrap;justify-content:center;margin-bottom:.75rem">
+      <button class="btn btn-o" onclick="prevFC()">← Prev</button>
+      <button class="btn btn-p" onclick="flipFC()">Flip Card</button>
+      <button class="btn btn-o" onclick="nextFC()">Next →</button>
+    </div>
+    <div style="display:flex;gap:.75rem;flex-wrap:wrap;justify-content:center">
+      <button class="btn btn-d btn-sm" onclick="markFC(false)">✗ Still Learning</button>
+      <button class="btn btn-g btn-sm" onclick="markFC(true)">✓ Got It!</button>
+    </div>
+    <p style="font-size:.75rem;color:var(--muted);margin-top:1rem">5 correct marks = Mastered 🏆</p>
+  </div>
+</div>
+
+<!-- QUIZ -->
+<div class="pg" id="pg-quiz">
+  <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.2rem;flex-wrap:wrap">
+    <h2 style="font-size:1.3rem;font-weight:800;flex:1">🧠 Quiz Mode</h2>
+    <select class="inp" style="max-width:160px" id="qzLang" onchange="qzCatUpdate()"></select>
+    <select class="inp" style="max-width:140px" id="qzCat"></select>
+    <button class="btn btn-p" onclick="startQuiz()">▶ Start Quiz</button>
+  </div>
+  <div id="qzSetup" class="card" style="max-width:480px">
+    <div class="card-title">Quiz Options</div>
+    <div style="margin-bottom:1rem"><label style="display:block;font-size:.78rem;color:var(--muted);margin-bottom:.3rem">Number of questions</label>
+      <select class="inp" id="qzCount"><option value="5">5 questions</option><option value="10" selected>10 questions</option><option value="15">15 questions</option><option value="20">20 questions</option></select>
+    </div>
+    <button class="btn btn-p btn-full" onclick="startQuiz()">▶ Start Quiz</button>
+  </div>
+  <div id="qzGame" style="display:none">
+    <div class="quiz-wrap">
+      <div class="q-prog"><div class="q-prog-fill" id="qzProg" style="width:0%"></div></div>
+      <div class="q-counter"><span id="qzCounterLbl">Q 1/10</span><span id="qzScoreLbl">✓ 0 | ✗ 0</span></div>
+      <div class="q-question"><div class="fc-lbl" style="margin-bottom:.5rem">Translate to <span id="qzLangName"></span></div><div class="q-q-text" id="qzQuestion"></div><div id="qzCatBadge"></div></div>
+      <div class="q-result-msg" id="qzMsg"></div>
+      <div class="options-grid" id="qzOptions"></div>
+      <button class="btn btn-o btn-full" id="qzNextBtn" style="display:none" onclick="nextQZ()">Next Question →</button>
+    </div>
+  </div>
+  <div id="qzResult" style="display:none">
+    <div class="result-wrap">
+      <div class="score-ring" id="qzScoreRing"><div class="score-pct" id="qzFinalPct">0%</div><div class="score-lbl">Score</div></div>
+      <h2 style="margin-bottom:.3rem">Quiz Complete! 🎊</h2>
+      <p style="color:var(--muted);font-size:.88rem;margin-bottom:1.5rem" id="qzResultMsg"></p>
+      <div style="display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap">
+        <button class="btn btn-o" onclick="document.getElementById('qzResult').style.display='none';document.getElementById('qzSetup').style.display='block'">Try Again</button>
+        <button class="btn btn-p" onclick="goPage('progress')">View Progress →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- VOCAB -->
+<div class="pg" id="pg-vocab">
+  <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.2rem;flex-wrap:wrap">
+    <h2 style="font-size:1.3rem;font-weight:800;flex:1">📖 Vocabulary List</h2>
+    <select class="inp" style="max-width:160px" id="vcLang" onchange="loadVocab()"></select>
+    <select class="inp" style="max-width:140px" id="vcCat" onchange="loadVocab()"></select>
+    <input class="inp" style="max-width:200px" id="vcSearch" placeholder="Search..." oninput="loadVocab()">
+  </div>
+  <div id="vocabList" style="display:flex;flex-direction:column;gap:.6rem"></div>
+</div>
+
+<!-- PROGRESS -->
+<div class="pg" id="pg-progress">
+  <h2 style="font-size:1.3rem;font-weight:800;margin-bottom:1.2rem">📊 My Progress</h2>
+  <div class="g4" id="progStats" style="margin-bottom:1.2rem"></div>
+  <div class="g2">
+    <div class="card">
+      <div class="card-title">📈 XP & Level</div>
+      <div id="levelInfo" style="margin-bottom:.75rem"></div>
+      <div class="xp-bar"><div class="xp-fill" id="xpBarFill" style="width:0%"></div></div>
+      <div style="font-size:.75rem;color:var(--muted)" id="xpNext"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">🏆 Achievements</div>
+      <div id="achievements"></div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:1.2rem">
+    <div class="card-title">📝 Recent Quiz Sessions</div>
+    <div id="recentSessions"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── DATA ───────────────────────────────────────────────────────────
+const LANGS=[
+  {id:'es',name:'Spanish',flag:'🇪🇸'},
+  {id:'fr',name:'French',flag:'🇫🇷'},
+  {id:'ja',name:'Japanese',flag:'🇯🇵'},
+  {id:'de',name:'German',flag:'🇩🇪'},
+  {id:'it',name:'Italian',flag:'🇮🇹'},
+];
+const VOCAB={
+  es:[
+    {cat:'Greetings',en:'Hello',tr:'Hola',pr:'OH-la',exEn:'Hello!',exTr:'¡Hola!'},
+    {cat:'Greetings',en:'Good morning',tr:'Buenos días',pr:'BWEH-nos DEE-as',exEn:'Good morning!',exTr:'¡Buenos días!'},
+    {cat:'Greetings',en:'Good night',tr:'Buenas noches',pr:'BWEH-nas NO-chess',exEn:'Good night!',exTr:'¡Buenas noches!'},
+    {cat:'Greetings',en:'Thank you',tr:'Gracias',pr:'GRA-see-as',exEn:'Thank you!',exTr:'¡Gracias!'},
+    {cat:'Greetings',en:'Please',tr:'Por favor',pr:'por fa-VOR',exEn:'Please help.',exTr:'Por favor ayuda.'},
+    {cat:'Greetings',en:'Yes',tr:'Sí',pr:'see',exEn:'Yes!',exTr:'¡Sí!'},
+    {cat:'Greetings',en:'No',tr:'No',pr:'noh',exEn:'No thanks.',exTr:'No, gracias.'},
+    {cat:'Food',en:'Water',tr:'Agua',pr:'AH-gwa',exEn:'I want water.',exTr:'Quiero agua.'},
+    {cat:'Food',en:'Food',tr:'Comida',pr:'co-MEE-da',exEn:'The food is good.',exTr:'La comida es buena.'},
+    {cat:'Food',en:'Bread',tr:'Pan',pr:'pahn',exEn:'I like bread.',exTr:'Me gusta el pan.'},
+    {cat:'Food',en:'Coffee',tr:'Café',pr:'ca-FEH',exEn:'One coffee please.',exTr:'Un café por favor.'},
+    {cat:'Food',en:'Apple',tr:'Manzana',pr:'man-SAH-na',exEn:'A red apple.',exTr:'Una manzana roja.'},
+    {cat:'Numbers',en:'One',tr:'Uno',pr:'OO-no',exEn:'One person.',exTr:'Una persona.'},
+    {cat:'Numbers',en:'Two',tr:'Dos',pr:'dos',exEn:'Two cats.',exTr:'Dos gatos.'},
+    {cat:'Numbers',en:'Three',tr:'Tres',pr:'tres',exEn:'Three houses.',exTr:'Tres casas.'},
+    {cat:'Numbers',en:'Ten',tr:'Diez',pr:'dee-EHS',exEn:'Ten dollars.',exTr:'Diez dólares.'},
+    {cat:'Colors',en:'Red',tr:'Rojo',pr:'RO-ho',exEn:'The car is red.',exTr:'El coche es rojo.'},
+    {cat:'Colors',en:'Blue',tr:'Azul',pr:'ah-SOOL',exEn:'Blue sky.',exTr:'Cielo azul.'},
+    {cat:'Colors',en:'Green',tr:'Verde',pr:'VER-deh',exEn:'The tree is green.',exTr:'El árbol es verde.'},
+    {cat:'Travel',en:'Airport',tr:'Aeropuerto',pr:'ay-ro-PWER-to',exEn:'Where is the airport?',exTr:'¿Dónde está el aeropuerto?'},
+    {cat:'Travel',en:'Hotel',tr:'Hotel',pr:'oh-TEL',exEn:'I need a hotel.',exTr:'Necesito un hotel.'},
+  ],
+  fr:[
+    {cat:'Greetings',en:'Hello',tr:'Bonjour',pr:'bon-ZHOOR',exEn:'Hello sir!',exTr:'Bonjour monsieur!'},
+    {cat:'Greetings',en:'Good evening',tr:'Bonsoir',pr:'bon-SWAHR',exEn:'Good evening.',exTr:'Bonsoir.'},
+    {cat:'Greetings',en:'Thank you',tr:'Merci',pr:'mer-SEE',exEn:'Thank you!',exTr:'Merci!'},
+    {cat:'Greetings',en:'Yes',tr:'Oui',pr:'wee',exEn:'Yes please.',exTr:"Oui, s'il vous plaît."},
+    {cat:'Greetings',en:'No',tr:'Non',pr:'nohn',exEn:'No thanks.',exTr:'Non, merci.'},
+    {cat:'Greetings',en:'Goodbye',tr:'Au revoir',pr:'oh re-VWAHR',exEn:'Goodbye!',exTr:'Au revoir!'},
+    {cat:'Food',en:'Bread',tr:'Pain',pr:'pan',exEn:'French bread.',exTr:'Pain français.'},
+    {cat:'Food',en:'Wine',tr:'Vin',pr:'van',exEn:'Red wine.',exTr:'Vin rouge.'},
+    {cat:'Food',en:'Cheese',tr:'Fromage',pr:'fro-MAZH',exEn:'I love cheese.',exTr:"J'adore le fromage."},
+    {cat:'Food',en:'Water',tr:'Eau',pr:'oh',exEn:'A glass of water.',exTr:"Un verre d'eau."},
+    {cat:'Colors',en:'Black',tr:'Noir',pr:'nwahr',exEn:'Black cat.',exTr:'Chat noir.'},
+    {cat:'Colors',en:'White',tr:'Blanc',pr:'blahn',exEn:'White dress.',exTr:'Robe blanche.'},
+    {cat:'Colors',en:'Red',tr:'Rouge',pr:'roozh',exEn:'Red rose.',exTr:'Rose rouge.'},
+    {cat:'Numbers',en:'One',tr:'Un',pr:'uh',exEn:'One apple.',exTr:'Une pomme.'},
+    {cat:'Numbers',en:'Two',tr:'Deux',pr:'duh',exEn:'Two birds.',exTr:'Deux oiseaux.'},
+    {cat:'Travel',en:'Train',tr:'Train',pr:'tran',exEn:'The train is late.',exTr:'Le train est en retard.'},
+    {cat:'Travel',en:'Beach',tr:'Plage',pr:'plazh',exEn:'I love the beach.',exTr:"J'adore la plage."},
+  ],
+  ja:[
+    {cat:'Greetings',en:'Hello',tr:'こんにちは',pr:'Konnichiwa',exEn:'Hello!',exTr:'こんにちは！'},
+    {cat:'Greetings',en:'Good morning',tr:'おはようございます',pr:'Ohayou gozaimasu',exEn:'Good morning!',exTr:'おはようございます！'},
+    {cat:'Greetings',en:'Thank you',tr:'ありがとう',pr:'Arigatou',exEn:'Thank you!',exTr:'ありがとう！'},
+    {cat:'Greetings',en:'Yes',tr:'はい',pr:'Hai',exEn:'Yes.',exTr:'はい。'},
+    {cat:'Greetings',en:'No',tr:'いいえ',pr:'Iie',exEn:'No.',exTr:'いいえ。'},
+    {cat:'Food',en:'Water',tr:'水',pr:'Mizu',exEn:'Water please.',exTr:'お水をください。'},
+    {cat:'Food',en:'Rice',tr:'ご飯',pr:'Gohan',exEn:'Japanese rice.',exTr:'日本のご飯。'},
+    {cat:'Food',en:'Sushi',tr:'寿司',pr:'Sushi',exEn:'I love sushi.',exTr:'お寿司が大好きです。'},
+    {cat:'Numbers',en:'One',tr:'一',pr:'Ichi',exEn:'One person.',exTr:'一人。'},
+    {cat:'Numbers',en:'Two',tr:'二',pr:'Ni',exEn:'Two cats.',exTr:'猫が二匹。'},
+    {cat:'Numbers',en:'Three',tr:'三',pr:'San',exEn:'Three days.',exTr:'三日間。'},
+    {cat:'Colors',en:'Red',tr:'赤',pr:'Aka',exEn:'Red flower.',exTr:'赤い花。'},
+    {cat:'Colors',en:'Blue',tr:'青',pr:'Ao',exEn:'Blue sky.',exTr:'青い空。'},
+    {cat:'Colors',en:'White',tr:'白',pr:'Shiro',exEn:'White snow.',exTr:'白い雪。'},
+  ],
+  de:[
+    {cat:'Greetings',en:'Hello',tr:'Hallo',pr:'HA-loh',exEn:'Hello everyone!',exTr:'Hallo alle!'},
+    {cat:'Greetings',en:'Good day',tr:'Guten Tag',pr:'GOO-ten tahk',exEn:'Good day!',exTr:'Guten Tag!'},
+    {cat:'Greetings',en:'Thank you',tr:'Danke',pr:'DAHN-ke',exEn:'Thank you!',exTr:'Danke!'},
+    {cat:'Greetings',en:'Yes',tr:'Ja',pr:'yah',exEn:'Yes of course.',exTr:'Ja, natürlich.'},
+    {cat:'Greetings',en:'No',tr:'Nein',pr:'nine',exEn:'No thanks.',exTr:'Nein, danke.'},
+    {cat:'Food',en:'Water',tr:'Wasser',pr:'VAS-er',exEn:'Mineral water.',exTr:'Mineralwasser.'},
+    {cat:'Food',en:'Bread',tr:'Brot',pr:'broht',exEn:'Fresh bread.',exTr:'Frisches Brot.'},
+    {cat:'Food',en:'Beer',tr:'Bier',pr:'beer',exEn:'A cold beer.',exTr:'Ein kaltes Bier.'},
+    {cat:'Numbers',en:'One',tr:'Eins',pr:'eyns',exEn:'One dog.',exTr:'Ein Hund.'},
+    {cat:'Numbers',en:'Two',tr:'Zwei',pr:'tsvye',exEn:'Two cars.',exTr:'Zwei Autos.'},
+    {cat:'Colors',en:'Red',tr:'Rot',pr:'roht',exEn:'Red apple.',exTr:'Roter Apfel.'},
+    {cat:'Colors',en:'Blue',tr:'Blau',pr:'blow',exEn:'Blue water.',exTr:'Blaues Wasser.'},
+    {cat:'Travel',en:'Train station',tr:'Bahnhof',pr:'BAHN-hof',exEn:'To the station.',exTr:'Zum Bahnhof.'},
+  ],
+  it:[
+    {cat:'Greetings',en:'Hello',tr:'Ciao',pr:'chow',exEn:'Hello friend!',exTr:'Ciao amico!'},
+    {cat:'Greetings',en:'Good morning',tr:'Buongiorno',pr:'bwon-JOR-no',exEn:'Good morning!',exTr:'Buongiorno!'},
+    {cat:'Greetings',en:'Thank you',tr:'Grazie',pr:'GRA-tsee-eh',exEn:'Thank you!',exTr:'Grazie!'},
+    {cat:'Greetings',en:'Yes',tr:'Sì',pr:'see',exEn:'Yes!',exTr:'Sì!'},
+    {cat:'Greetings',en:'No',tr:'No',pr:'noh',exEn:'No thank you.',exTr:'No grazie.'},
+    {cat:'Food',en:'Pizza',tr:'Pizza',pr:'PEE-tsa',exEn:'I love pizza.',exTr:'Adoro la pizza.'},
+    {cat:'Food',en:'Coffee',tr:'Caffè',pr:'ka-FEH',exEn:'An espresso.',exTr:'Un caffè espresso.'},
+    {cat:'Food',en:'Wine',tr:'Vino',pr:'VEE-no',exEn:'Red wine.',exTr:'Vino rosso.'},
+    {cat:'Numbers',en:'One',tr:'Uno',pr:'OO-no',exEn:'One ticket.',exTr:'Un biglietto.'},
+    {cat:'Numbers',en:'Two',tr:'Due',pr:'DOO-eh',exEn:'Two coffees.',exTr:'Due caffè.'},
+    {cat:'Colors',en:'Red',tr:'Rosso',pr:'ROS-so',exEn:'A red shirt.',exTr:'Una camicia rossa.'},
+    {cat:'Colors',en:'Blue',tr:'Blu',pr:'bloo',exEn:'Blue sky.',exTr:'Cielo blu.'},
+    {cat:'Travel',en:'Museum',tr:'Museo',pr:'moo-ZEH-oh',exEn:'The museum is open.',exTr:'Il museo è aperto.'},
+  ],
+};
+
+// ── STORE ──────────────────────────────────────────────────────────
+function ld(){try{return JSON.parse(localStorage.getItem('lingua')||'null');}catch(e){return null;}}
+function sv(){localStorage.setItem('lingua',JSON.stringify(db));}
+let db=ld()||{progress:{},sessions:[],xp:0};
+// progress[lang][wordIdx] = {correct, seen}
+
+function getWP(lang,idx){if(!db.progress[lang])db.progress[lang]={};if(!db.progress[lang][idx])db.progress[lang][idx]={correct:0,seen:0};return db.progress[lang][idx];}
+function isMastered(lang,idx){return getWP(lang,idx).correct>=5;}
+function totalMastered(){return LANGS.reduce((s,l)=>{const w=VOCAB[l.id]||[];return s+w.filter((_,i)=>isMastered(l.id,i)).length;},0);}
+function addXP(n){db.xp=(db.xp||0)+n;sv();document.getElementById('xpChip').textContent='⭐ '+db.xp+' XP';}
+function getLevel(){const xp=db.xp||0;const lvl=Math.floor(xp/100)+1;const next=(lvl)*100;const cur=(lvl-1)*100;return{level:lvl,xp,next,pct:Math.round((xp-cur)/(next-cur)*100)};}
+function toast(msg,ok=true){const t=document.getElementById('toast');t.textContent=msg;t.style.borderLeftColor=ok?'var(--primary)':'var(--danger)';t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);}
+
+// ── NAV ────────────────────────────────────────────────────────────
+function goPage(id){
+  document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on'));
+  document.getElementById('pg-'+id).classList.add('on');
+  const idx=['home','flashcards','quiz','vocab','progress'].indexOf(id);
+  document.querySelectorAll('.nb')[idx].classList.add('on');
+  document.getElementById('xpChip').textContent='⭐ '+(db.xp||0)+' XP';
+  const pages={home:renderHome,flashcards:initFC,quiz:initQZ,vocab:initVocab,progress:renderProgress};
+  if(pages[id])pages[id]();
+}
+
+// ── HOME ───────────────────────────────────────────────────────────
+function renderHome(){
+  const grid=document.getElementById('langGrid');
+  grid.innerHTML=LANGS.map(l=>{
+    const words=VOCAB[l.id]||[];
+    const mastered=words.filter((_,i)=>isMastered(l.id,i)).length;
+    const pct=words.length?Math.round(mastered/words.length*100):0;
+    return `<div class="lang-card" onclick="selectLang('${l.id}')">
+      <div class="lang-flag">${l.flag}</div>
+      <div class="lang-name">${l.name}</div>
+      <div class="lang-count">${mastered}/${words.length} words mastered</div>
+      <div class="lang-progress"><div class="lang-progress-fill" style="width:${pct}%"></div></div>
+    </div>`;
+  }).join('');
+  const mastered=totalMastered(),total=LANGS.reduce((s,l)=>s+(VOCAB[l.id]||[]).length,0);
+  document.getElementById('homeStats').innerHTML=`
+    <div class="card"><div style="text-align:center"><div style="font-size:1.8rem;font-weight:900;background:linear-gradient(135deg,var(--primary),var(--secondary));-webkit-background-clip:text;-webkit-text-fill-color:transparent">${mastered}</div><div style="font-size:.75rem;color:var(--muted)">Words Mastered</div></div></div>
+    <div class="card"><div style="text-align:center"><div style="font-size:1.8rem;font-weight:900;background:linear-gradient(135deg,var(--primary),var(--secondary));-webkit-background-clip:text;-webkit-text-fill-color:transparent">${LANGS.length}</div><div style="font-size:.75rem;color:var(--muted)">Languages</div></div></div>
+    <div class="card"><div style="text-align:center"><div style="font-size:1.8rem;font-weight:900;background:linear-gradient(135deg,var(--primary),var(--secondary));-webkit-background-clip:text;-webkit-text-fill-color:transparent">${db.sessions?db.sessions.length:0}</div><div style="font-size:.75rem;color:var(--muted)">Quizzes Taken</div></div></div>
+    <div class="card"><div style="text-align:center"><div style="font-size:1.8rem;font-weight:900;background:linear-gradient(135deg,var(--warn),#F97316)">${db.xp||0}</div><div style="font-size:.75rem;color:var(--muted)">XP Earned</div></div></div>`;
+}
+function selectLang(id){activeLang=id;goPage('flashcards');}
+let activeLang='es';
+
+// ── HELPERS: populate selects ──────────────────────────────────────
+function populateLangSel(selId,cb){
+  const sel=document.getElementById(selId);
+  sel.innerHTML=LANGS.map(l=>`<option value="${l.id}">${l.flag} ${l.name}</option>`).join('');
+  sel.value=activeLang;
+  sel.onchange=()=>{activeLang=sel.value;if(cb)cb();};
+}
+function populateCatSel(selId,langId,cb){
+  const words=VOCAB[langId]||[];
+  const cats=['All',...new Set(words.map(w=>w.cat))];
+  const sel=document.getElementById(selId);
+  sel.innerHTML=cats.map(c=>`<option value="${c}">${c}</option>`).join('');
+  sel.onchange=cb||null;
+}
+
+// ── FLASHCARDS ─────────────────────────────────────────────────────
+let fcWords=[],fcIdx=0;
+function initFC(){populateLangSel('fcLang',loadFC);loadFC();}
+function loadFC(){
+  activeLang=document.getElementById('fcLang').value;
+  populateCatSel('fcCat',activeLang,loadFC);
+  const cat=document.getElementById('fcCat').value||'All';
+  const words=VOCAB[activeLang]||[];
+  fcWords=cat==='All'?[...words].map((w,i)=>({...w,origIdx:i})):[...words].map((w,i)=>({...w,origIdx:i})).filter(w=>w.cat===cat);
+  fcIdx=0;renderFC();
+}
+function renderFC(){
+  if(!fcWords.length){document.getElementById('fcEn').textContent='No words';return;}
+  const w=fcWords[fcIdx];
+  document.getElementById('fcEn').textContent=w.en;
+  document.getElementById('fcExEn').textContent=w.exEn||'';
+  document.getElementById('fcTr').textContent=w.tr;
+  document.getElementById('fcPron').textContent=w.pr?'['+w.pr+']':'';
+  document.getElementById('fcExTr').textContent=w.exTr||'';
+  document.getElementById('fcLangLbl').textContent=(LANGS.find(l=>l.id===activeLang)||{}).name||'Translation';
+  document.getElementById('fc').classList.remove('flip');
+  const mastered=fcWords.filter(w=>isMastered(activeLang,w.origIdx)).length;
+  document.getElementById('fcCounter').textContent=(fcIdx+1)+' / '+fcWords.length;
+  document.getElementById('fcMastered').textContent=mastered;
+}
+function flipFC(){document.getElementById('fc').classList.toggle('flip');}
+function prevFC(){fcIdx=(fcIdx-1+fcWords.length)%fcWords.length;renderFC();}
+function nextFC(){fcIdx=(fcIdx+1)%fcWords.length;renderFC();}
+function markFC(correct){
+  const w=fcWords[fcIdx];const p=getWP(activeLang,w.origIdx);
+  p.seen++;if(correct){p.correct++;if(p.correct===5){toast('🏆 Word Mastered!');addXP(10);}else addXP(2);}
+  sv();nextFC();
+}
+
+// ── QUIZ ───────────────────────────────────────────────────────────
+let qzQueue=[],qzIdx=0,qzCorrect=0,qzWrong=0;
+function initQZ(){populateLangSel('qzLang',qzCatUpdate);populateCatSel('qzCat',activeLang);}
+function qzCatUpdate(){activeLang=document.getElementById('qzLang').value;populateCatSel('qzCat',activeLang);}
+function startQuiz(){
+  activeLang=document.getElementById('qzLang').value;
+  const cat=document.getElementById('qzCat').value||'All';
+  const n=parseInt(document.getElementById('qzCount').value)||10;
+  const words=VOCAB[activeLang]||[];
+  let pool=cat==='All'?[...words].map((w,i)=>({...w,origIdx:i})):[...words].map((w,i)=>({...w,origIdx:i})).filter(w=>w.cat===cat);
+  if(pool.length<4){toast('Need at least 4 words in this category.',false);return;}
+  qzQueue=pool.sort(()=>Math.random()-.5).slice(0,n).map(word=>{
+    const others=pool.filter(x=>x.tr!==word.tr);
+    const wrong=others.sort(()=>Math.random()-.5).slice(0,3);
+    const opts=[word.tr,...wrong.map(w=>w.tr)].sort(()=>Math.random()-.5);
+    return{...word,options:opts};
+  });
+  qzIdx=0;qzCorrect=0;qzWrong=0;
+  document.getElementById('qzSetup').style.display='none';
+  document.getElementById('qzGame').style.display='block';
+  document.getElementById('qzResult').style.display='none';
+  document.getElementById('qzLangName').textContent=(LANGS.find(l=>l.id===activeLang)||{}).name||'';
+  renderQZ();
+}
+function renderQZ(){
+  if(qzIdx>=qzQueue.length){showQZResult();return;}
+  const q=qzQueue[qzIdx];
+  const pct=Math.round(qzIdx/qzQueue.length*100);
+  document.getElementById('qzProg').style.width=pct+'%';
+  document.getElementById('qzCounterLbl').textContent=`Q ${qzIdx+1}/${qzQueue.length}`;
+  document.getElementById('qzScoreLbl').textContent=`✓ ${qzCorrect} | ✗ ${qzWrong}`;
+  document.getElementById('qzQuestion').textContent=q.en;
+  document.getElementById('qzCatBadge').innerHTML=`<span class="q-cat-badge">${q.cat}</span>`;
+  const msg=document.getElementById('qzMsg');msg.className='q-result-msg';msg.textContent='';
+  document.getElementById('qzNextBtn').style.display='none';
+  document.getElementById('qzOptions').innerHTML=q.options.map(o=>
+    `<button class="opt-btn" onclick="answerQZ('${o.replace(/'/g,"\\'")}','${q.tr.replace(/'/g,"\\'")}')">${o}</button>`
+  ).join('');
+}
+function answerQZ(chosen,correct){
+  const ok=chosen===correct;
+  if(ok){qzCorrect++;addXP(5);}else{qzWrong++;}
+  // Mark options
+  document.querySelectorAll('.opt-btn').forEach(b=>{
+    b.disabled=true;
+    if(b.textContent===correct)b.classList.add('correct');
+    else if(b.textContent===chosen&&!ok)b.classList.add('wrong');
+  });
+  const msg=document.getElementById('qzMsg');
+  msg.textContent=ok?'✓ Correct! +5 XP':'✗ Incorrect — the correct answer is: '+correct;
+  msg.className='q-result-msg '+(ok?'show-ok':'show-bad');
+  document.getElementById('qzNextBtn').style.display='block';
+  // Update progress
+  const word=qzQueue[qzIdx];const p=getWP(activeLang,word.origIdx);p.seen++;if(ok)p.correct++;sv();
+}
+function nextQZ(){qzIdx++;renderQZ();}
+function showQZResult(){
+  document.getElementById('qzGame').style.display='none';
+  document.getElementById('qzResult').style.display='block';
+  const total=qzCorrect+qzWrong,pct=total?Math.round(qzCorrect/total*100):0;
+  document.getElementById('qzFinalPct').textContent=pct+'%';
+  const ring=document.getElementById('qzScoreRing');
+  ring.style.borderColor=pct>=80?'var(--success)':pct>=50?'var(--warn)':'var(--danger)';
+  ring.style.color=pct>=80?'var(--success)':pct>=50?'var(--warn)':'var(--danger)';
+  const msgs=['Keep practicing! 💪','Good effort! 👍','Well done! 🎉','Excellent! 🌟','Perfect score! 🏆'];
+  document.getElementById('qzResultMsg').textContent=msgs[Math.floor(pct/20)]||'';
+  db.sessions=db.sessions||[];
+  db.sessions.unshift({lang:activeLang,score:pct,correct:qzCorrect,total:qzCorrect+qzWrong,date:new Date().toLocaleDateString()});
+  if(db.sessions.length>20)db.sessions=db.sessions.slice(0,20);
+  sv();
+  if(pct===100)addXP(50);else if(pct>=80)addXP(25);else if(pct>=50)addXP(10);
+}
+
+// ── VOCAB ──────────────────────────────────────────────────────────
+function initVocab(){populateLangSel('vcLang',loadVocab);populateCatSel('vcCat',activeLang,loadVocab);loadVocab();}
+function loadVocab(){
+  activeLang=document.getElementById('vcLang').value;
+  populateCatSel('vcCat',activeLang,loadVocab);
+  const cat=document.getElementById('vcCat').value||'All';
+  const search=(document.getElementById('vcSearch').value||'').toLowerCase();
+  const words=(VOCAB[activeLang]||[]).map((w,i)=>({...w,origIdx:i}))
+    .filter(w=>(cat==='All'||w.cat===cat)&&(!search||(w.en+w.tr+w.pr).toLowerCase().includes(search)));
+  document.getElementById('vocabList').innerHTML=words.map(w=>{
+    const m=isMastered(activeLang,w.origIdx);
+    return `<div class="word-card">
+      <div style="flex:1">
+        <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.2rem"><span class="wc-en">${w.en}</span><span class="wc-cat">${w.cat}</span>${m?'<span class="wc-mastered">✓ Mastered</span>':''}</div>
+        <div class="wc-tr">${w.tr}</div>
+        ${w.pr?`<div class="wc-pron">[${w.pr}]</div>`:''}
+        ${w.exEn?`<div style="font-size:.75rem;color:var(--muted);margin-top:.2rem">e.g. "${w.exEn}" → "${w.exTr}"</div>`:''}
+      </div>
+    </div>`;
+  }).join('')||'<div class="empty">No words found.</div>';
+}
+
+// ── PROGRESS ───────────────────────────────────────────────────────
+function renderProgress(){
+  const mastered=totalMastered(),total=LANGS.reduce((s,l)=>s+(VOCAB[l.id]||[]).length,0);
+  const sessions=db.sessions||[];const avgScore=sessions.length?Math.round(sessions.reduce((s,x)=>s+x.score,0)/sessions.length):0;
+  document.getElementById('progStats').innerHTML=`
+    <div class="prog-stat"><div class="ps-num">${mastered}</div><div class="ps-lbl">Words Mastered</div></div>
+    <div class="prog-stat"><div class="ps-num">${db.xp||0}</div><div class="ps-lbl">XP Earned</div></div>
+    <div class="prog-stat"><div class="ps-num">${sessions.length}</div><div class="ps-lbl">Quizzes Taken</div></div>
+    <div class="prog-stat"><div class="ps-num">${avgScore}%</div><div class="ps-lbl">Avg Quiz Score</div></div>`;
+  const {level,xp,next,pct,cur}=getLevel();
+  document.getElementById('levelInfo').innerHTML=`<div style="font-size:1.3rem;font-weight:800">Level ${level} <span style="font-size:.85rem;color:var(--muted);font-weight:400">${xp} / ${next} XP</span></div>`;
+  document.getElementById('xpBarFill').style.width=pct+'%';
+  document.getElementById('xpNext').textContent=`${next-xp} XP to Level ${level+1}`;
+  // Achievements
+  const achs=[
+    [mastered>=1,'🌱','First Word','Mastered your first word'],
+    [mastered>=10,'📚','Bookworm','Mastered 10 words'],
+    [mastered>=50,'🧠','Polyglot Apprentice','Mastered 50 words'],
+    [sessions.length>=1,'🎯','Quiz Taker','Completed first quiz'],
+    [sessions.length>=10,'🏅','Quiz Master','Completed 10 quizzes'],
+    [avgScore>=80,'⭐','High Achiever','80%+ average quiz score'],
+    [(db.xp||0)>=100,'💫','Century XP','Earned 100 XP'],
+    [(db.xp||0)>=500,'💎','XP Legend','Earned 500 XP'],
+  ];
+  document.getElementById('achievements').innerHTML=achs.map(([earned,icon,name,desc])=>`
+    <div class="achievement" style="opacity:${earned?1:.4}">
+      <div class="ach-icon">${icon}</div>
+      <div class="ach-info"><h4>${name}</h4><p>${desc}</p></div>
+      ${earned?'<span style="margin-left:auto;color:var(--success);font-size:.8rem">✓</span>':''}
+    </div>`).join('');
+  // Recent sessions
+  document.getElementById('recentSessions').innerHTML=sessions.slice(0,5).map(s=>{
+    const lang=LANGS.find(l=>l.id===s.lang)||{flag:'🌐',name:s.lang};
+    return `<div style="display:flex;align-items:center;justify-content:space-between;padding:.65rem 0;border-bottom:1px solid var(--border);font-size:.85rem">
+      <div>${lang.flag} ${lang.name}</div>
+      <div style="color:var(--muted)">${s.correct}/${s.total} correct</div>
+      <div style="color:${s.score>=80?'var(--success)':s.score>=50?'var(--warn)':'var(--danger)'};font-weight:700">${s.score}%</div>
+      <div style="color:var(--muted);font-size:.75rem">${s.date}</div>
+    </div>`;
+  }).join('')||'<p style="color:var(--muted);font-size:.88rem">No quizzes taken yet.</p>';
+}
+
+// INIT
+document.getElementById('xpChip').textContent='⭐ '+(db.xp||0)+' XP';
+renderHome();
+</script>
+</body>
+</html>
