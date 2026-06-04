@@ -130,11 +130,4 @@ Task4_LanguageLearning/
 
 ---
 
-## 📬 Contact / Credits
-
-Built for the **CodeAlpha App Development Internship**
-- Task 4: Language Learning App
-- Framework: Flask (backend) + Vanilla JS (frontend)
-- Data: Persistent via localStorage / SQLite
-
 > *"The limits of my language mean the limits of my world."* — Ludwig Wittgenstein
