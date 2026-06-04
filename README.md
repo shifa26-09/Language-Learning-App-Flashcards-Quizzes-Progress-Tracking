@@ -2,13 +2,6 @@
 
 A beautifully designed, fully interactive language learning app that works **instantly in any browser** — no installation, no server required. All progress is saved automatically using localStorage.
 
----
-
-## 🚀 How to Run
-
-### Option 1: Standalone (Recommended — Zero Setup)
-1. Open `Task4_LanguageLearning_Standalone.html` in any modern browser (Chrome, Firefox, Edge, Safari)
-2. That's it — fully functional immediately!
 
 ### Option 2: Flask Backend
 ```bash
@@ -16,7 +9,7 @@ cd flask_backend
 pip install flask
 python app.py
 ```
-Open: **http://localhost:5004**
+Open: https://lingualeap-22.netlify.app
 
 ---
 
